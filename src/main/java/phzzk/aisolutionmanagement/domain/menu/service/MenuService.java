@@ -22,28 +22,19 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final  ModelMapper modelMapper;
 
-    public List<MenuClientDto> findAllMenus(){
-        List<Menu> flat = menuRepository.findAllWithChildren();
-        return flat.stream()
-                .map(menu -> modelMapper.map(menu, MenuClientDto.class))
-                .collect(Collectors.toList());
-    }
-
     public List<MenuClientDto> getAccessibleMenusByUserRole(Role userRole) {
-        return menuRepository.findAllWithChildren().stream()
-                // (1) 루트 메뉴만 필터
-                .filter(menu -> menu.getParent() == null)
-                // (2) 부모 권한 필터
-                .filter(menu -> menu.getRoles().contains(userRole))
-                // (3) 자식 권한 필터
-                .map(menu -> {
-                    List<Menu> filteredChildren = menu.getChildren().stream()
-                            .filter(child -> child.getRoles().contains(userRole))
+        return menuRepository.findAllActiveWithChildren().stream()
+                // (1) 부모 권한 필터
+                .filter(parent -> parent.getRoles().contains(userRole))
+                // (2) 자식 활성·권한 필터
+                .peek(parent -> {
+                    List<Menu> filteredChildren = parent.getChildren().stream()
+                            .filter(child -> child.isActive())          // 자식 활성 여부
+                            .filter(child -> child.getRoles().contains(userRole))  // 자식 권한
                             .collect(Collectors.toList());
-                    menu.setChildren(filteredChildren);
-                    return menu;
+                    parent.setChildren(filteredChildren);
                 })
-                // (4) DTO 매핑
+                // (3) DTO 매핑
                 .map(menu -> modelMapper.map(menu, MenuClientDto.class))
                 .collect(Collectors.toList());
     }

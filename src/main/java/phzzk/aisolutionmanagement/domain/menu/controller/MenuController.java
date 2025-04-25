@@ -26,6 +26,7 @@ public class MenuController {
     public ResponseEntity<Map<String, Object>> getMenu(Authentication authentication) {
         // 1) authentication 으로 부터 권한 추출
         Role userRole = jwtTokenProvider.getRoleFromAuthentication(authentication);
+        log.info(userRole.toString());
 
         // 3) 서비스 호출 (단일 Role 전달)
         List<MenuClientDto> menus = menuService.getAccessibleMenusByUserRole(userRole);

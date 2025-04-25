@@ -1,10 +1,7 @@
 package phzzk.aisolutionmanagement.domain.menu.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.converter.RoleConverter;
 
@@ -25,13 +22,13 @@ public class Menu {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 100, unique = true)
     private String name;
 
     @Column(length = 255)
     private String description;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 200, unique = true)
     private String url;
 
     @Column(length = 100)
@@ -40,6 +37,9 @@ public class Menu {
     @Convert(converter = RoleConverter.class)
     @Column(name = "roles", nullable = false, length = 100)
     private Set<Role> roles = new HashSet<>();
+
+    @Column(nullable = false)
+    private boolean isActive;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
