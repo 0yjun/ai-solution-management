@@ -6,8 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import phzzk.aisolutionmanagement.member.entity.Member;
-import phzzk.aisolutionmanagement.member.repository.MemberRepository;
+import phzzk.aisolutionmanagement.domain.member.entity.Member;
+import phzzk.aisolutionmanagement.domain.member.repository.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
