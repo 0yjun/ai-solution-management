@@ -1,0 +1,9 @@
+services:
+  app:
+    build:
+      context: .        # Dockerfile 과 build/libs 가 위치한 프로젝트 루트
+      dockerfile: Dockerfile
+    image: ai-solution-springboot:latest
+    container_name: ai-solution-springboot
+    ports:
+      - "8080:8080"     # 호스트 8080 → 컨테이너 8080

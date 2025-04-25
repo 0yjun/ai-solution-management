@@ -1,0 +1,1 @@
+docker save ai-solution-springboot:latest -o ai-solution-springboot_latest.tar

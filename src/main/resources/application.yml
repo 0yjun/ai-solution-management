@@ -1,0 +1,25 @@
+server:
+    port: 8080
+
+spring:
+    application:
+        name: ai-solution-management
+
+    jpa:
+        hibernate:
+            ddl-auto: create-drop  # 실행 시 테이블 생성, 종료 시 삭제
+        show-sql: true           # 콘솔에 SQL 출력
+        properties:
+            hibernate:
+                format_sql: true
+        defer-datasource-initialization: true
+    sql:
+        init:
+            data-locations: classpath:db/data.sql
+            mode: always
+            platform: h2
+
+
+jwt:
+    secret: aisolutionmanagement_prerevolutionaries_aisolutionmanagement_aisolutionmanagement_aisolutionmanagement_
+    expiration: 3600000 # 1시간 (1h = 1000ms * 60 * 60)
