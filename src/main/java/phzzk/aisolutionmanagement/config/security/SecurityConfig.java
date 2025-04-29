@@ -1,5 +1,7 @@
 package phzzk.aisolutionmanagement.config.security;
 
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +13,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -29,14 +32,36 @@ public class SecurityConfig {
     private final JwtSecurityFilter jwtSecurityFilter;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
+        http
+                // JWT 기반 API이므로 CSRF 비활성화
+                .csrf(AbstractHttpConfigurer::disable)
+                // CORS 기본 설정 (필요시 세부 설정 추가)
                 .cors(Customizer.withDefaults())
-                .csrf(csrf->csrf.disable())
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth->auth.requestMatchers("/api/auth/login","/api/auth/register").permitAll()
-                                .anyRequest().authenticated()
-                        )
+                // 세션 사용 안 함
+                .sessionManagement(sm -> sm
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // 인증/인가 설정
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/login", "/api/auth/register")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated()
+                )
+                // 로그아웃 처리
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("access_token")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            // 상태 코드 반환
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        })
+                )
+                // JWT 토큰 필터를 기본 UsernamePassword 필터 전에 등록
                 .addFilterBefore(jwtSecurityFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

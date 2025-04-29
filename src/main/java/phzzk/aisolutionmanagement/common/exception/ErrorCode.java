@@ -47,6 +47,10 @@ public enum ErrorCode {
     MENU_EMPTY_ROLES(HttpStatus.BAD_REQUEST,       "MNU003",
             "메뉴에는 최소한 하나의 권한이 필요합니다.", ErrorType.BUSINESS),
 
+    // 권한 관련
+    ROLE_NOT_FOUND(HttpStatus.BAD_REQUEST,       "ROL001",
+            "해당 권한이 존재하지 않습니다.", ErrorType.BUSINESS),
+
     // 공통
     INTERNAL_COMMON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"CMM001",
             "메뉴에는 최소한 하나의 권한이 필요합니다.", ErrorType.UNCATEGORIZED);

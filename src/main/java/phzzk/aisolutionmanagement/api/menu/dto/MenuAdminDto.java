@@ -1,0 +1,46 @@
+package phzzk.aisolutionmanagement.api.menu.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import phzzk.aisolutionmanagement.common.constants.Role;
+
+import java.util.List;
+import java.util.Set;
+
+@Schema(name = "MenuResponse", description = "메뉴 응답 DTO")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class MenuAdminDto {
+
+    @Schema(description = "메뉴 ID", example = "42")
+    private Long id;
+
+    @Schema(description = "메뉴명", example = "Dashboard")
+    private String name;
+
+    @Schema(description = "메뉴설명", example = "Dashboard")
+    private String description;
+
+    @Schema(description = "URL", example = "/dashboard")
+    private String url;
+
+    @Schema(description = "메뉴순서", example = "1")
+    private Integer seq;
+
+    @Schema(description = "아이콘명", example = "dashboard")
+    private String icon;
+
+    @Schema(description = "부모 메뉴 ID (null일 수 있음)", example = "1")
+    private Long parentId;
+
+    @Schema(description = "하위 메뉴 목록")
+    private List<MenuAdminDto> children;
+
+    @Schema(description = "메뉴 권한", example = "[SYSTEM_ADMIN, CONTENT_MANAGER]")
+    private Set<Role> roles;
+}
