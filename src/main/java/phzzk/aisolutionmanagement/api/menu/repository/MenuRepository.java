@@ -1,29 +1,37 @@
 package phzzk.aisolutionmanagement.api.menu.repository;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import phzzk.aisolutionmanagement.api.menu.entity.Menu;
 import phzzk.aisolutionmanagement.common.constants.Role;
 
 import java.util.List;
 
+@Repository
 public interface MenuRepository extends JpaRepository<Menu, Long> {
     /**
-     * 주어진 role 에 속하는 최상위 메뉴와,
-     * 그 자식 메뉴 중에도 role 에 속한 항목만 함께 페치
+     * 1) 최상위 메뉴 + 자식 메뉴(fetch join children)
      */
-    @Query("""
-        SELECT DISTINCT m
-          FROM Menu m
-        LEFT JOIN FETCH m.children c
-        WHERE m.parent IS NULL
-    """)
-    List<Menu> findAllWithChildren();
+//    @EntityGraph(attributePaths = {"children"})
+//    List<Menu> findRootMenusOrderBySeq();
 
     /**
-     * 주어진 role 에 속하는 최상위 메뉴와,
-     * 그 자식 메뉴 중에도 role 에 속한 항목만 함께 페치
+     * 2) 최상위 메뉴 + 자식 + 이전 + 다음(fetch join children, prevMenu, nextMenu)
+     */
+    @EntityGraph(attributePaths = {"children","prevMenu","nextMenu"})
+    List<Menu> findByParentIsNullOrderBySeq();
+
+    /**
+     * 3) isActive = true인 최상위 메뉴 + 자식 + 이전 + 다음(fetch join children, prevMenu, nextMenu)
+     */
+    @EntityGraph(attributePaths = {"children","prevMenu","nextMenu"})
+    List<Menu> findByParentIsNullAndIsActiveTrueOrderBySeq();
+
+    /**
+     * 4) 주어진 role에 속하는 최상위 메뉴 + 그 자식(fetch join children)
      */
     @Query("""
         SELECT DISTINCT m
@@ -35,18 +43,7 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
                OR CONCAT(',', c.roles, ',') LIKE CONCAT('%,', :roleName, ',%')
               )
     """)
-    List<Menu> findAllByRoleWithChildren(@Param("roleName") String roleName);
+    List<Menu> findDistinctByParentIsNullAndRolesContainingOrderBySeq(String roleName);
 
-    /**
-     * 부모가 없는(isRoot) 활성화된 메뉴와,
-     * 자식 중 isActive = true 인 것만 Fetch Join
-     */
-    @Query("""
-      SELECT DISTINCT m
-      FROM Menu m
-      LEFT JOIN FETCH m.children c
-      WHERE m.parent IS NULL
-        AND m.isActive = true
-    """)
-    List<Menu> findAllActiveWithChildren();
+
 }

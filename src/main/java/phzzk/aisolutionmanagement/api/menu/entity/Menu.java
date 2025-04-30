@@ -1,5 +1,6 @@
 package phzzk.aisolutionmanagement.api.menu.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import phzzk.aisolutionmanagement.common.constants.Role;
@@ -16,11 +17,12 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@ToString(exclude = {"parent","children","prevMenu","nextMenu"})
 public class Menu {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false, length = 100, unique = true)
     private String name;
@@ -43,6 +45,24 @@ public class Menu {
 
     @Column(nullable = false)
     private boolean isActive;
+
+    // — prev/next id 저장용 컬럼
+    @Column(name = "prev_menu_id")
+    private Integer prevMenuId;
+    @Column(name = "next_menu_id")
+    private Integer nextMenuId;
+
+    // — prev/next 객체 매핑 (조회 전용)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "prev_menu_id", insertable = false, updatable = false)
+    private Menu prevMenu;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "next_menu_id", insertable = false, updatable = false)
+    private Menu nextMenu;
+
+    @Column(name = "parent_id", insertable = false, updatable = false)
+    private Integer parentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")

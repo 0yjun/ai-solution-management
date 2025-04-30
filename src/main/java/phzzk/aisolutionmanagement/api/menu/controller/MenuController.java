@@ -68,7 +68,7 @@ public class MenuController {
         if ("all".equalsIgnoreCase(roleParam)) {
             menus = menuService.findAdminMenuAll();
         } else {
-            menus = menuService.getMenuByRole(roleParam);
+            menus = menuService.findAdminMenuByRoleParam(roleParam);
         }
 
         // 3) 공통 응답 포맷

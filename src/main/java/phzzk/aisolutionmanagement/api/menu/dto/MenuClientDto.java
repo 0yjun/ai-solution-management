@@ -16,7 +16,7 @@ import java.util.List;
 public class MenuClientDto {
 
     @Schema(description = "메뉴 ID", example = "42")
-    private Long id;
+    private Integer id;
 
     @Schema(description = "메뉴명", example = "Dashboard")
     private String name;
@@ -35,4 +35,22 @@ public class MenuClientDto {
 
     @Schema(description = "하위 메뉴 목록")
     private List<MenuClientDto> children;
+
+    @Schema(description = "이전 메뉴 ID", example = "1")
+    private Long prevMenuId;
+
+    @Schema(description = "이전 메뉴 url", example = "/prev")
+    private String prevMenuUrl;
+
+    @Schema(description = "이전 메뉴 이름", example = "이전메뉴")
+    private String prevMenuName;
+
+    @Schema(description = "다음 메뉴 ID", example = "1")
+    private Long nextMenuId;
+
+    @Schema(description = "다음 메뉴 url", example = "/next")
+    private String nextMenuUrl;
+
+    @Schema(description = "다음 메뉴 이름", example = "다음 메뉴")
+    private String nextMenuName;
 }

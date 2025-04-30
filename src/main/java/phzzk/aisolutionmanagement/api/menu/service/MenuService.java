@@ -1,6 +1,7 @@
 package phzzk.aisolutionmanagement.api.menu.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +20,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MenuService {
     private final MenuRepository menuRepository;
     private final  ModelMapper modelMapper;
 
+    /**
+     * 사용자 권한별 메뉴 조회
+     * @return 권한에 맞는 사용자 메뉴 트리
+     */
     public List<MenuClientDto> getAccessibleMenusByUserRole(Role userRole) {
-        return menuRepository.findAllActiveWithChildren().stream()
+        return menuRepository.findByParentIsNullAndIsActiveTrueOrderBySeq().stream()
                 // (1) 부모 권한 필터
                 .filter(parent -> parent.getRoles().contains(userRole))
                 // (2) 자식 활성·권한 필터
@@ -36,26 +42,85 @@ public class MenuService {
                     parent.setChildren(filteredChildren);
                 })
                 // (3) DTO 매핑
-                .map(menu -> modelMapper.map(menu, MenuClientDto.class))
+                .map(this::toClientMenuDto)   // 재귀 호출
                 .collect(Collectors.toList());
     }
 
     /**
-     * 주어진 Role에 맞는 최상위 메뉴와 자식 메뉴를 트리 형태로 조회합니다.
+     * 주어진 Role에 맞는 최상위 메뉴와 자식 메뉴를 트리 형태로 조회
+     *
+     * @param menu 엔티티
+     * @return 권한에 맞는 메뉴 트리
+     */
+    private MenuClientDto toClientMenuDto(Menu menu) {
+        // 1) 기본 필드 매핑
+        MenuClientDto dto = modelMapper.map(menu, MenuClientDto.class);
+
+        // 2) prev/next 매핑
+        if (menu.getPrevMenuId() != null && menu.getPrevMenu() != null) {
+            dto.setPrevMenuName(menu.getPrevMenu().getName());
+            dto.setPrevMenuUrl( menu.getPrevMenu().getUrl());
+        }
+        if (menu.getNextMenuId() != null && menu.getNextMenu() != null) {
+            dto.setNextMenuName(menu.getNextMenu().getName());
+            dto.setNextMenuUrl( menu.getNextMenu().getUrl());
+        }
+
+        // 3) children 재귀 매핑
+        List<MenuClientDto> childDtos = menu.getChildren().stream()
+                .map(this::toClientMenuDto)
+                .collect(Collectors.toList());
+        dto.setChildren(childDtos);
+
+        return dto;
+    }
+
+    /**
+     * 주어진 Role에 맞는 최상위 메뉴와 자식 메뉴를 트리 형태로 조회
      *
      * @param rolename 사용자 권한
      * @return 권한에 맞는 메뉴 트리
      */
-    public List<MenuAdminDto> getMenuByRole(String rolename) {
-        return menuRepository.findAllByRoleWithChildren(rolename).stream()
-                .map(menu->modelMapper.map(menu, MenuAdminDto.class))
+    public List<MenuAdminDto> findAdminMenuByRoleParam(String rolename) {
+        return menuRepository.findDistinctByParentIsNullAndRolesContainingOrderBySeq(rolename).stream()
+                .map(this::toAdminMenuDto)
                 .collect(Collectors.toList());
     }
 
     public List<MenuAdminDto> findAdminMenuAll() {
-        return menuRepository.findAllWithChildren().stream()
-                .map(menu->modelMapper.map(menu, MenuAdminDto.class))
+        return menuRepository.findByParentIsNullOrderBySeq().stream()
+                .map(this::toAdminMenuDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 주어진 Role에 맞는 최상위 메뉴와 자식 메뉴를 트리 형태로 조회
+     *
+     * @param menu 엔티티
+     * @return 권한에 맞는 메뉴 트리
+     */
+    private MenuAdminDto toAdminMenuDto(Menu menu) {
+        log.info(menu.toString());
+        // 1) 기본 필드 매핑
+        MenuAdminDto dto = modelMapper.map(menu, MenuAdminDto.class);
+
+        // 2) prev/next 매핑
+        if (menu.getPrevMenuId() != null && menu.getPrevMenu() != null) {
+            dto.setPrevMenuName(menu.getPrevMenu().getName());
+            dto.setPrevMenuUrl( menu.getPrevMenu().getUrl());
+        }
+        if (menu.getNextMenuId() != null && menu.getNextMenu() != null) {
+            dto.setNextMenuName(menu.getNextMenu().getName());
+            dto.setNextMenuUrl( menu.getNextMenu().getUrl());
+        }
+
+        // 3) children 재귀 매핑
+        List<MenuAdminDto> childDtos = menu.getChildren().stream()
+                .map(this::toAdminMenuDto)
+                .collect(Collectors.toList());
+        dto.setChildren(childDtos);
+
+        return dto;
     }
 
     @Transactional

@@ -18,7 +18,7 @@ import java.util.Set;
 public class MenuAdminDto {
 
     @Schema(description = "메뉴 ID", example = "42")
-    private Long id;
+    private Integer id;
 
     @Schema(description = "메뉴명", example = "Dashboard")
     private String name;
@@ -35,6 +35,9 @@ public class MenuAdminDto {
     @Schema(description = "아이콘명", example = "dashboard")
     private String icon;
 
+    @Schema(description = "활성화 여부", example = "true | false")
+    private boolean isActive;
+
     @Schema(description = "부모 메뉴 ID (null일 수 있음)", example = "1")
     private Long parentId;
 
@@ -43,4 +46,22 @@ public class MenuAdminDto {
 
     @Schema(description = "메뉴 권한", example = "[SYSTEM_ADMIN, CONTENT_MANAGER]")
     private Set<Role> roles;
+
+    @Schema(description = "이전 메뉴 ID", example = "1")
+    private Long prevMenuId;
+
+    @Schema(description = "이전 메뉴 url", example = "/prev")
+    private String prevMenuUrl;
+
+    @Schema(description = "이전 메뉴 이름", example = "이전메뉴")
+    private String prevMenuName;
+
+    @Schema(description = "다음 메뉴 ID", example = "1")
+    private Long nextMenuId;
+
+    @Schema(description = "다음 메뉴 url", example = "/next")
+    private String nextMenuUrl;
+
+    @Schema(description = "다음 메뉴 이름", example = "다음 메뉴")
+    private String nextMenuName;
 }
