@@ -31,13 +31,13 @@ public class MenuClientDto {
     private String icon;
 
     @Schema(description = "부모 메뉴 ID (null일 수 있음)", example = "1")
-    private Long parentId;
+    private Integer parentId;
 
     @Schema(description = "하위 메뉴 목록")
     private List<MenuClientDto> children;
 
     @Schema(description = "이전 메뉴 ID", example = "1")
-    private Long prevMenuId;
+    private Integer prevMenuId;
 
     @Schema(description = "이전 메뉴 url", example = "/prev")
     private String prevMenuUrl;

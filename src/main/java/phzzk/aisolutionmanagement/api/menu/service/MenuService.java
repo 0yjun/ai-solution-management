@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuAdminDto;
+import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequest;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
@@ -142,7 +143,7 @@ public class MenuService {
         return modelMapper.map(savedMenu, MenuClientDto.class);
     }
 
-    private Menu findParentOrNull(Long parentId) {
+    private Menu findParentOrNull(Integer parentId) {
         if(parentId == null){
             return null;
         }
@@ -162,6 +163,28 @@ public class MenuService {
         }
     }
 
+    public MenuClientDto updateMenu(Integer menuId, MenuUpdateRequest request) {
+        // 1. 수정 대상 메뉴 조회
+        Menu existing = menuRepository.findById(menuId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
 
+        // 2. 부모 메뉴 조회 (ID가 null이면 null 반환)
+        Menu parent = findParentOrNull(request.getParentId());
 
+        // 2-1. 자기 자신을 부모로 지정할 수 없도록 방지
+        if (request.getParentId() != null && request.getParentId().equals(menuId)) {
+            throw new CustomException(ErrorCode.MENU_PARENT_CYCLE_INVALID);
+        }
+
+        // 3. 역할 유효성 검증 (빈 집합, 부모 권한 포함 여부)
+        validateRoles(request.getRoles(), parent);
+
+        // 4. 요청 DTO의 변경값을 기존 엔티티에 매핑
+        modelMapper.map(request, existing);
+        existing.setParent(parent);
+
+        // 5. 엔티티 저장 및 응답 DTO 변환
+        Menu updated = menuRepository.save(existing);
+        return modelMapper.map(updated, MenuClientDto.class);
+    }
 }

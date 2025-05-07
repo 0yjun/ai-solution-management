@@ -11,7 +11,7 @@ import phzzk.aisolutionmanagement.common.constants.Role;
 import java.util.List;
 
 @Repository
-public interface MenuRepository extends JpaRepository<Menu, Long> {
+public interface MenuRepository extends JpaRepository<Menu, Integer> {
     /**
      * 1) 최상위 메뉴 + 자식 메뉴(fetch join children)
      */

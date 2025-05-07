@@ -1,7 +1,9 @@
 package phzzk.aisolutionmanagement.api.menu.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,12 +13,15 @@ import phzzk.aisolutionmanagement.common.constants.Role;
 import java.util.List;
 import java.util.Set;
 
-@Schema(name = "MenuCreateRequest", description = "메뉴 생성 요청 DTO")
+@Schema(name = "MenuCreateRequest", description = "메뉴 수정 요청 DTO")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MenuCreateRequest {
+public class MenuUpdateRequest {
+    @Schema(description = "메뉴아이디", example = "1")
+    private Integer id;
+
     @Schema(description = "메뉴명", example = "Dashboard")
     private String name;
 

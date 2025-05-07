@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuAdminDto;
+import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequest;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
@@ -90,6 +91,23 @@ public class MenuController {
     public ResponseEntity<Map<String, Object>> createMenu(@Valid @RequestBody MenuCreateRequest request) {
         // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
         MenuClientDto menuClientDto = menuService.createMenu(request);
+
+        // 2) 응답 포맷에 맞춰 Map 생성
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "메뉴 생성이 완료되었습니다.");
+
+        result.put("data", menuClientDto);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> editMenu(
+            @PathVariable Integer id,
+            @Valid @RequestBody MenuUpdateRequest request) {
+        // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
+        MenuClientDto menuClientDto = menuService.updateMenu(id, request);
 
         // 2) 응답 포맷에 맞춰 Map 생성
         Map<String, Object> result = new LinkedHashMap<>();
