@@ -1,9 +1,15 @@
 package phzzk.aisolutionmanagement.api.member.controller;
 
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import phzzk.aisolutionmanagement.api.member.dto.MemberSearchRequest;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
 import phzzk.aisolutionmanagement.api.member.service.MemberService;
@@ -17,10 +23,33 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
+@Slf4j
 public class MemberController {
 
     private final MemberService memberService;
     private final JwtTokenProvider jwtTokenProvider;
+
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> searchPage(
+            @RequestParam(name="search", defaultValue="") String search,
+            @RequestParam(name="role", required = false) Role role,
+            @PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<MemberDto> members =  memberService.getMemberPage(search, role, pageable);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "유저 조회 성공");
+        result.put("data", members);
+
+        return ResponseEntity.ok(result);
+    }
+
+
+    @GetMapping("/{id}")
+    public Member detail(@PathVariable Long id) {
+        return memberService.findById(id);
+    }
 
     @GetMapping("me")
     public ResponseEntity<Map<String, Object>> getMyInfo(Authentication authentication) {
@@ -40,15 +69,5 @@ public class MemberController {
         result.put("data", userData);
 
         return ResponseEntity.ok(result);
-    }
-
-    @GetMapping
-    public List<MemberDto> list() {
-        return memberService.getMember();
-    }
-
-    @GetMapping("/{id}")
-    public Member detail(@PathVariable Long id) {
-        return memberService.findById(id);
     }
 }

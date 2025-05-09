@@ -2,9 +2,13 @@ package phzzk.aisolutionmanagement.api.member.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupRequest;
+import phzzk.aisolutionmanagement.api.member.dto.MemberSearchRequest;
+import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 import phzzk.aisolutionmanagement.api.member.repository.MemberRepository;
@@ -34,9 +38,17 @@ public class MemberService {
         return memberRepository.save(member);
     }
 
-    public List<MemberDto> getMember() {
-        List<Member> result = memberRepository.findAll();
-        return result.stream().map((element) -> modelMapper.map(element, MemberDto.class)).collect(Collectors.toList());
+    public Page<MemberDto> getMemberPage(String search, Role role, Pageable pageable) {
+        if (role == null) {
+            // role 필터 없이 유저명 검색만
+            return memberRepository
+                    .findByUsernameContainingIgnoreCase(search, pageable)
+                    .map(entity -> modelMapper.map(entity, MemberDto.class));
+        }
+        // role이 지정된 경우에만 role 필터 추가
+        return memberRepository
+                .findByUsernameContainingIgnoreCaseAndRole(search, role, pageable)
+                .map(entity -> modelMapper.map(entity, MemberDto.class));
     }
 
     public Member findById(Long id) {

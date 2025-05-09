@@ -10,6 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.awt.event.FocusEvent;
 
@@ -89,6 +90,15 @@ public class CustomExceptionHandler {
                         resultErrorCode.getCode(),
                         String.format(resultErrorCode.getMessage(), "", "")
                 ));
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        ErrorCode code = ErrorCode.VALIDATION_ERROR;
+        String msg = String.format(code.getMessage(), ex.getName(), "잘못된 값: " + ex.getValue());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(code.getCode(), msg));
     }
 
     @Getter
