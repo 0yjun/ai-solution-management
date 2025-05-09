@@ -43,7 +43,7 @@ public class SecurityConfig {
                 )
                 // 인증/인가 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register")
+                        .requestMatchers("/api/auth/login", "/api/auth/signup","api/constants/roles")
                         .permitAll()
                         .anyRequest()
                         .authenticated()

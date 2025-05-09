@@ -23,12 +23,12 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public Member register(SignupRequest request) {
-        validateDuplicateUsername(request.username());
+        validateDuplicateUsername(request.getUsername());
         Member member = Member.builder()
-                .username(request.username())
-                .password(passwordEncoder.encode(request.password()))
-                .role(request.role())
-                .description(request.description())
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
+                .description(request.getDescription())
                 .build();
 
         return memberRepository.save(member);

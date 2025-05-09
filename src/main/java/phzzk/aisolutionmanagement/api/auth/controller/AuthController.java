@@ -33,7 +33,7 @@ public class AuthController {
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     @Operation(summary = "회원 등록", description = "새로운 관리자를 등록합니다.")
     public ResponseEntity<Map<String, Object>> createMember(@RequestBody @Valid SignupRequest request) {
 

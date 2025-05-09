@@ -29,15 +29,14 @@ public class AuthService {
 
     public SignupResponse signup(SignupRequest request) {
         Member member = memberService.register(request);
-        log.info(member.toString());
         return modelMapper.map(member, SignupResponse.class);
     }
 
     public LoginResponse login(LoginRequest request) {
-        Member member = memberRepository.findByUsername(request.username())
+        Member member = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (!passwordEncoder.matches(request.password(), member.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
         }
         return new LoginResponse(member.getUsername(), member.getRole());
