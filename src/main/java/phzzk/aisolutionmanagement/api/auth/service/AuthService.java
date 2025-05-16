@@ -5,13 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import phzzk.aisolutionmanagement.api.auth.dto.LoginRequest;
-import phzzk.aisolutionmanagement.api.auth.dto.LoginResponse;
-import phzzk.aisolutionmanagement.api.auth.dto.SignupRequest;
-import phzzk.aisolutionmanagement.api.auth.dto.SignupResponse;
+import phzzk.aisolutionmanagement.api.auth.dto.LoginRequestDto;
+import phzzk.aisolutionmanagement.api.auth.dto.LoginResponseDto;
+import phzzk.aisolutionmanagement.api.auth.dto.SignupRequestDto;
+import phzzk.aisolutionmanagement.api.auth.dto.SignupResponseDto;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
-import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
 import phzzk.aisolutionmanagement.api.member.entity.Member;
 import phzzk.aisolutionmanagement.api.member.repository.MemberRepository;
 import phzzk.aisolutionmanagement.api.member.service.MemberService;
@@ -25,20 +24,19 @@ public class AuthService {
     private final MemberService memberService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public SignupResponse signup(SignupRequest request) {
+    public SignupResponseDto signup(SignupRequestDto request) {
         Member member = memberService.register(request);
-        return modelMapper.map(member, SignupResponse.class);
+        return modelMapper.map(member, SignupResponseDto.class);
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponseDto login(LoginRequestDto request) {
         Member member = memberRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
             throw new CustomException(ErrorCode.PASSWORD_MISMATCH);
         }
-        return new LoginResponse(member.getUsername(), member.getRole());
+        return new LoginResponseDto(member.getUsername(), member.getRole());
     }
 }

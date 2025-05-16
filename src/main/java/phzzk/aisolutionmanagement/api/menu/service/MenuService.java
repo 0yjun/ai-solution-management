@@ -6,12 +6,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuAdminDto;
-import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequest;
+import phzzk.aisolutionmanagement.api.menu.dto.MenuCreateRequestDto;
+import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequestDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 import phzzk.aisolutionmanagement.api.menu.repository.MenuRepository;
-import phzzk.aisolutionmanagement.api.menu.dto.MenuCreateRequest;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuClientDto;
 import phzzk.aisolutionmanagement.api.menu.entity.Menu;
 
@@ -125,7 +125,7 @@ public class MenuService {
     }
 
     @Transactional
-    public MenuClientDto createMenu(MenuCreateRequest request) {
+    public MenuClientDto createMenu(MenuCreateRequestDto request) {
         // 1. 부모 메뉴 조회 (ID가 null이면 null 반환)
         Menu parent = findParentOrNull(request.getParentId());
 
@@ -163,7 +163,7 @@ public class MenuService {
         }
     }
 
-    public MenuClientDto updateMenu(Integer menuId, MenuUpdateRequest request) {
+    public MenuClientDto updateMenu(Integer menuId, MenuUpdateRequestDto request) {
         // 1. 수정 대상 메뉴 조회
         Menu existing = menuRepository.findById(menuId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));

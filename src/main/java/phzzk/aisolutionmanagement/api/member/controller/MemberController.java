@@ -9,11 +9,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import phzzk.aisolutionmanagement.api.member.dto.MemberSearchRequest;
+import phzzk.aisolutionmanagement.api.member.dto.MemberAdminDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
 import phzzk.aisolutionmanagement.api.member.service.MemberService;
-import phzzk.aisolutionmanagement.api.member.dto.MemberDto;
 import phzzk.aisolutionmanagement.api.member.entity.Member;
 
 import java.util.LinkedHashMap;
@@ -35,7 +34,7 @@ public class MemberController {
             @RequestParam(name="role", required = false) Role role,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        Page<MemberDto> members =  memberService.getMemberPage(search, role, pageable);
+        Page<MemberAdminDto> members =  memberService.getMemberPage(search, role, pageable);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("code", "SUCCESS");

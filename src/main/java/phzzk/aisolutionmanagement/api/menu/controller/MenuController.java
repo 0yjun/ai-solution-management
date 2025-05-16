@@ -7,14 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuAdminDto;
-import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequest;
+import phzzk.aisolutionmanagement.api.menu.dto.MenuCreateRequestDto;
+import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequestDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuClientDto;
 import phzzk.aisolutionmanagement.api.menu.service.MenuService;
-import phzzk.aisolutionmanagement.api.menu.dto.MenuCreateRequest;
 
 import java.util.*;
 
@@ -88,7 +88,7 @@ public class MenuController {
      * @return 201 Created
      */
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createMenu(@Valid @RequestBody MenuCreateRequest request) {
+    public ResponseEntity<Map<String, Object>> createMenu(@Valid @RequestBody MenuCreateRequestDto request) {
         // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
         MenuClientDto menuClientDto = menuService.createMenu(request);
 
@@ -105,7 +105,7 @@ public class MenuController {
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> editMenu(
             @PathVariable Integer id,
-            @Valid @RequestBody MenuUpdateRequest request) {
+            @Valid @RequestBody MenuUpdateRequestDto request) {
         // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
         MenuClientDto menuClientDto = menuService.updateMenu(id, request);
 

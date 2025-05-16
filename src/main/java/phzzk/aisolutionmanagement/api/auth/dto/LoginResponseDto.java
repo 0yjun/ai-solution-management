@@ -10,7 +10,7 @@ import phzzk.aisolutionmanagement.common.constants.Role;
 @AllArgsConstructor
 @Builder
 @Schema(description = "로그인 응답 DTO")
-public class LoginResponse {
+public class LoginResponseDto {
         @Schema(description = "유저이름", example = "user1234...")
         private String username; // private final 필드
 
