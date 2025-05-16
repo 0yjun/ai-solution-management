@@ -6,8 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupRequestDto;
 import phzzk.aisolutionmanagement.api.member.dto.MemberAdminDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberCreateRequestDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
@@ -25,17 +27,38 @@ public class MemberService {
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public Member register(SignupRequestDto request) {
-        validateDuplicateUsername(request.getUsername());
-        Member member = Member.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .description(request.getDescription())
-                .build();
+        return createNewMember(
+                request.getUsername(),
+                request.getPassword(),
+                request.getRole(),
+                null
+        );
+    }
 
+    @Transactional
+    public Member createMemberByAdmin(MemberCreateRequestDto request) {
+        return createNewMember(
+                request.getUsername(),
+                request.getPassword(),
+                request.getRole(),
+                request.getDescription()
+        );
+    }
+
+    private Member createNewMember(String username, String rawPassword, Role role, String description){
+        validateDuplicateUsername(username);
+        String encoded = passwordEncoder.encode(rawPassword);
+        Member member = Member.builder()
+                .username(username)
+                .password(encoded)
+                .role(role)
+                .description(description)
+                .build();
         return memberRepository.save(member);
     }
+
 
     public Page<MemberAdminDto> getMemberPage(String search, Role role, Pageable pageable) {
         if (role == null) {

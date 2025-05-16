@@ -1,4 +1,4 @@
-package phzzk.aisolutionmanagement.api.auth.dto;
+package phzzk.aisolutionmanagement.api.member.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import phzzk.aisolutionmanagement.common.constants.Role;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignupRequestDto {
+public class MemberCreateRequestDto {
 
         @Schema(description = "로그인 ID", example = "admin1")
         @NotBlank
@@ -27,4 +27,8 @@ public class SignupRequestDto {
         @Schema(description = "권한", example = "ROLE_SYSTEM_ADMIN")
         @NotNull
         private Role role;
+
+        @Schema(description = "설명", example = "유저에대한 설명")
+        @NotNull
+        private String description;
 }
