@@ -9,12 +9,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import phzzk.aisolutionmanagement.common.constants.Role;
 
-@Schema(description = "회원 생성 요청 DTO")
+@Schema(description = "회원 수정 요청 DTO")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberCreateRequestDto {
+public class MemberUpdateRequestDto {
+        @Schema(description = "회원 ID", example = "1")
+        @NotNull
+        private Long id;
 
         @Schema(description = "로그인 ID", example = "admin1")
         @NotBlank

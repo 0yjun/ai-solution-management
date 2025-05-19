@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupRequestDto;
 import phzzk.aisolutionmanagement.api.member.dto.MemberAdminDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberClientDto;
 import phzzk.aisolutionmanagement.api.member.dto.MemberCreateRequestDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberUpdateRequestDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
@@ -26,39 +28,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
-
-    @Transactional
-    public Member register(SignupRequestDto request) {
-        return createNewMember(
-                request.getUsername(),
-                request.getPassword(),
-                request.getRole(),
-                null
-        );
-    }
-
-    @Transactional
-    public Member createMemberByAdmin(MemberCreateRequestDto request) {
-        return createNewMember(
-                request.getUsername(),
-                request.getPassword(),
-                request.getRole(),
-                request.getDescription()
-        );
-    }
-
-    private Member createNewMember(String username, String rawPassword, Role role, String description){
-        validateDuplicateUsername(username);
-        String encoded = passwordEncoder.encode(rawPassword);
-        Member member = Member.builder()
-                .username(username)
-                .password(encoded)
-                .role(role)
-                .description(description)
-                .build();
-        return memberRepository.save(member);
-    }
-
 
     public Page<MemberAdminDto> getMemberPage(String search, Role role, Pageable pageable) {
         if (role == null) {
@@ -78,9 +47,63 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
+    public MemberClientDto register(SignupRequestDto request) {
+        Member createMember =  createNewMember(
+                request.getUsername(),
+                request.getPassword(),
+                request.getRole(),
+                null
+        );
+        return modelMapper.map(createMember, MemberClientDto.class);
+    }
+
+    public MemberAdminDto createMemberByAdmin(MemberCreateRequestDto request) {
+        Member createMember =  createNewMember(
+                request.getUsername(),
+                request.getPassword(),
+                request.getRole(),
+                request.getDescription()
+        );
+        return modelMapper.map(createMember, MemberAdminDto.class);
+    }
+
+    @Transactional
+    private Member createNewMember(String username, String rawPassword, Role role, String description){
+        validateDuplicateUsername(username);
+        String encoded = passwordEncoder.encode(rawPassword);
+        Member member = Member.builder()
+                .username(username)
+                .password(encoded)
+                .role(role)
+                .description(description)
+                .build();
+        return memberRepository.save(member);
+    }
+
     public void validateDuplicateUsername(String username) {
         if (memberRepository.findByUsername(username).isPresent()) {
             throw new CustomException(ErrorCode.DUPLICATE_USERNAME);
         }
+    }
+
+    @Transactional
+    public MemberAdminDto updateMember(Long memberId, MemberUpdateRequestDto memberUpdateRequestDto){
+        if(!memberUpdateRequestDto.getId().equals(memberId)){
+            throw new CustomException(ErrorCode.ID_MISMATCH);
+        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        Member updated = modelMapper.map(memberUpdateRequestDto, Member.class);
+        memberRepository.save(member);
+        return modelMapper.map(updated, MemberAdminDto.class);
+    }
+
+    @Transactional
+    public void deleteMember(Long memberId){
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        memberRepository.delete(member);
     }
 }

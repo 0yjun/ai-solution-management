@@ -57,7 +57,11 @@ public enum ErrorCode {
 
     // 공통
     INTERNAL_COMMON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"CMM001",
-            "메뉴에는 최소한 하나의 권한이 필요합니다.", ErrorType.UNCATEGORIZED);
+            "메뉴에는 최소한 하나의 권한이 필요합니다.", ErrorType.UNCATEGORIZED),
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND,
+            "CMM002", "%s ID로 조회되는 결과가 없습니다", ErrorType.BUSINESS),
+    ID_MISMATCH(HttpStatus.BAD_REQUEST,
+            "CMM003", "요청 경로의 %s ID와 본문의 ID가 일치하지 않습니다", ErrorType.BUSINESS);
 
     private final HttpStatus httpStatus;
     private final String     code;

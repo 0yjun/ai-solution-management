@@ -1,6 +1,8 @@
 package phzzk.aisolutionmanagement.api.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import phzzk.aisolutionmanagement.api.member.dto.MemberAdminDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberCreateRequestDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberUpdateRequestDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
 import phzzk.aisolutionmanagement.api.member.service.MemberService;
@@ -69,4 +73,49 @@ public class MemberController {
 
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping
+    @Operation(summary = "회원 생성", description = "새로운 관리자를 등록합니다.")
+    public ResponseEntity<Map<String, Object>> createMember(
+            @RequestBody @Valid MemberCreateRequestDto memberCreateRequestDto
+    ) {
+        MemberAdminDto memberAdminDto = memberService.createMemberByAdmin(memberCreateRequestDto);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "회원가입이 완료되었습니다.");
+        result.put("data", memberAdminDto);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/{memberId}")
+    @Operation(summary = "회원 수정", description = "관리자를 수정합니다.")
+    public ResponseEntity<Map<String, Object>> updateMember(
+            @PathVariable Long memberId,
+            @RequestBody @Valid MemberUpdateRequestDto memberUpdateRequestDto
+            ) {
+        MemberAdminDto memberAdminDto = memberService.updateMember(memberId,memberUpdateRequestDto);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "성공");
+        result.put("data", memberAdminDto);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{memberId}")
+    @Operation(summary = "회원 수정", description = "관리자를 삭제합니다.")
+    public ResponseEntity<Map<String, Object>> deleteMember(@PathVariable Long memberId) {
+        memberService.deleteMember(memberId);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "회원가입이 완료되었습니다.");
+        result.put("data", null);
+
+        return ResponseEntity.ok(result);
+    }
+
 }

@@ -17,6 +17,7 @@ import phzzk.aisolutionmanagement.api.auth.dto.LoginResponseDto;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupRequestDto;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupResponseDto;
 import phzzk.aisolutionmanagement.api.auth.service.AuthService;
+import phzzk.aisolutionmanagement.api.member.dto.MemberClientDto;
 import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
 
 import java.time.Duration;
@@ -37,11 +38,11 @@ public class AuthController {
     @Operation(summary = "회원 등록", description = "새로운 관리자를 등록합니다.")
     public ResponseEntity<Map<String, Object>> createMember(@RequestBody @Valid SignupRequestDto request) {
 
-        SignupResponseDto SignupResponseDto = authService.signup(request);
+        MemberClientDto memberClientDto = authService.signup(request);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("code", "SUCCESS");
         result.put("message", "회원가입이 완료되었습니다.");
-        result.put("data", SignupResponseDto);
+        result.put("data", memberClientDto);
 
         return ResponseEntity.ok(result);
     }

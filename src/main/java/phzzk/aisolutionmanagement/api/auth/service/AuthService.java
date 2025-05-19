@@ -9,6 +9,7 @@ import phzzk.aisolutionmanagement.api.auth.dto.LoginRequestDto;
 import phzzk.aisolutionmanagement.api.auth.dto.LoginResponseDto;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupRequestDto;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupResponseDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberClientDto;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 import phzzk.aisolutionmanagement.api.member.entity.Member;
@@ -25,9 +26,8 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
-    public SignupResponseDto signup(SignupRequestDto request) {
-        Member member = memberService.register(request);
-        return modelMapper.map(member, SignupResponseDto.class);
+    public MemberClientDto signup(SignupRequestDto request) {
+        return memberService.register(request);
     }
 
     public LoginResponseDto login(LoginRequestDto request) {
