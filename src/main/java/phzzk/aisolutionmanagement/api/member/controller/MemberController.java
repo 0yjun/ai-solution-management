@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import phzzk.aisolutionmanagement.api.member.dto.MemberAdminDto;
 import phzzk.aisolutionmanagement.api.member.dto.MemberCreateRequestDto;
+import phzzk.aisolutionmanagement.api.member.dto.MemberResetPasswordRequestDto;
 import phzzk.aisolutionmanagement.api.member.dto.MemberUpdateRequestDto;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.config.security.JwtTokenProvider;
@@ -99,20 +100,36 @@ public class MemberController {
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("code", "SUCCESS");
-        result.put("message", "성공");
+        result.put("message", "회원정보가 수정되었습니다.");
+        result.put("data", memberAdminDto);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/{memberId}/password/reset")
+    @Operation(summary = "비밀번호 초기화", description = "비밀번호를 초기화 합니다.")
+    public ResponseEntity<Map<String, Object>> resetPassword(
+            @PathVariable Long memberId,
+            @RequestBody @Valid MemberResetPasswordRequestDto memberResetPasswordRequestDto
+    ) {
+        MemberAdminDto memberAdminDto = memberService.resetPassword(memberId,memberResetPasswordRequestDto);
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "비밀번호가 초기화 되었습니다.");
         result.put("data", memberAdminDto);
 
         return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/{memberId}")
-    @Operation(summary = "회원 수정", description = "관리자를 삭제합니다.")
+    @Operation(summary = "회원 삭제", description = "관리자를 삭제합니다.")
     public ResponseEntity<Map<String, Object>> deleteMember(@PathVariable Long memberId) {
         memberService.deleteMember(memberId);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("code", "SUCCESS");
-        result.put("message", "회원가입이 완료되었습니다.");
+        result.put("message", "회원이 삭제되었습니다.");
         result.put("data", null);
 
         return ResponseEntity.ok(result);

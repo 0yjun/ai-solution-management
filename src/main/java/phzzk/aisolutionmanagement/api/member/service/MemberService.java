@@ -8,10 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phzzk.aisolutionmanagement.api.auth.dto.SignupRequestDto;
-import phzzk.aisolutionmanagement.api.member.dto.MemberAdminDto;
-import phzzk.aisolutionmanagement.api.member.dto.MemberClientDto;
-import phzzk.aisolutionmanagement.api.member.dto.MemberCreateRequestDto;
-import phzzk.aisolutionmanagement.api.member.dto.MemberUpdateRequestDto;
+import phzzk.aisolutionmanagement.api.member.dto.*;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
@@ -68,7 +65,7 @@ public class MemberService {
     }
 
     @Transactional
-    private Member createNewMember(String username, String rawPassword, Role role, String description){
+    public Member createNewMember(String username, String rawPassword, Role role, String description){
         validateDuplicateUsername(username);
         String encoded = passwordEncoder.encode(rawPassword);
         Member member = Member.builder()
@@ -94,9 +91,29 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(()->new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
-        Member updated = modelMapper.map(memberUpdateRequestDto, Member.class);
+        member.setRole(memberUpdateRequestDto.getRole());
+        member.setDescription(memberUpdateRequestDto.getDescription());
         memberRepository.save(member);
-        return modelMapper.map(updated, MemberAdminDto.class);
+
+        return modelMapper.map(member, MemberAdminDto.class);
+    }
+
+    @Transactional
+    public MemberAdminDto resetPassword(
+            Long memberId, MemberResetPasswordRequestDto memberResetPasswordRequestDto
+    ){
+        if(!memberResetPasswordRequestDto.getId().equals(memberId)){
+            throw new CustomException(ErrorCode.ID_MISMATCH);
+        }
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(()->new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        String encoded = passwordEncoder.encode(memberResetPasswordRequestDto.getPassword());
+
+        member.setPassword(encoded);
+        memberRepository.save(member);
+
+        return modelMapper.map(member, MemberAdminDto.class);
     }
 
     @Transactional
