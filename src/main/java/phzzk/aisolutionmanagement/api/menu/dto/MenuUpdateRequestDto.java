@@ -43,9 +43,6 @@ public class MenuUpdateRequestDto {
     @Schema(description = "부모 메뉴 ID (null일 수 있음)", example = "1")
     private Integer parentId;
 
-    @Schema(description = "하위 메뉴 목록")
-    private List<MenuAdminDto> children;
-
     @Schema(
             description = "허용된 Role 목록 (최소 1개, 최대 4개)",
             implementation = Role.class,
@@ -61,18 +58,6 @@ public class MenuUpdateRequestDto {
     @Schema(description = "이전 메뉴 ID", example = "1")
     private Integer prevMenuId;
 
-    @Schema(description = "이전 메뉴 url", example = "/prev")
-    private String prevMenuUrl;
-
-    @Schema(description = "이전 메뉴 이름", example = "이전메뉴")
-    private String prevMenuName;
-
     @Schema(description = "다음 메뉴 ID", example = "1")
     private Integer nextMenuId;
-
-    @Schema(description = "다음 메뉴 url", example = "/next")
-    private String nextMenuUrl;
-
-    @Schema(description = "다음 메뉴 이름", example = "다음 메뉴")
-    private String nextMenuName;
 }

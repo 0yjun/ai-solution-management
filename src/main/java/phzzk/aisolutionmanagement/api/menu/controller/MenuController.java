@@ -51,13 +51,13 @@ public class MenuController {
 
     /**
      * 관리자 권한별 메뉴 조회
-     *
+     * @url /members/menus?role=all
      * @param roleParam 메뉴 권한
      * @return 200
      */
-    @GetMapping("/{role}")
+    @GetMapping(params = "role")
     public ResponseEntity<Map<String, Object>> getMenuByRole(
-            @PathVariable("role") String roleParam
+            @RequestParam(name="role", defaultValue="all") String roleParam
     ) {
         // 1) 유효성 검사: "all" 이 아니면서 enum 에도 없으면 400 에러
         if (!"all".equalsIgnoreCase(roleParam) && !Role.contains(roleParam)) {
@@ -77,6 +77,31 @@ public class MenuController {
         body.put("code",    "SUCCESS");
         body.put("message", "메뉴 조회 성공");
         body.put("data",    menus);
+
+        return ResponseEntity.ok(body);
+    }
+
+    /**
+     * 관리자 권한별 메뉴 조회
+     * @url /members/menus/1234
+     * @pathvariable roleParam 메뉴 권한
+     * @return 200
+     */
+    @GetMapping("/{menuId}")
+    public ResponseEntity<Map<String, Object>> getMenuById(
+            @PathVariable Integer menuId,
+            Authentication authentication
+    ) {
+        Role userRole = jwtTokenProvider.getRoleFromAuthentication(authentication);
+        log.info(userRole.toString());
+
+        MenuAdminDto result =  menuService.getMenuId(menuId);
+
+        // 3) 공통 응답 포맷
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("code",    "SUCCESS");
+        body.put("message", "메뉴 조회 성공");
+        body.put("data",    result);
 
         return ResponseEntity.ok(body);
     }
@@ -103,18 +128,31 @@ public class MenuController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> editMenu(
+    public ResponseEntity<Map<String, Object>> updateMenu(
             @PathVariable Integer id,
             @Valid @RequestBody MenuUpdateRequestDto request) {
         // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
-        MenuClientDto menuClientDto = menuService.updateMenu(id, request);
+        MenuAdminDto menuAdminDto = menuService.updateMenu(id, request);
 
         // 2) 응답 포맷에 맞춰 Map 생성
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("code", "SUCCESS");
-        result.put("message", "메뉴 생성이 완료되었습니다.");
+        result.put("message", "메뉴 수정이 완료되었습니다.");
+        result.put("data", menuAdminDto);
 
-        result.put("data", menuClientDto);
+        return ResponseEntity.ok(result);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteMenu(@PathVariable Integer id) {
+        // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
+        menuService.deleteMenu(id);
+
+        // 2) 응답 포맷에 맞춰 Map 생성
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "메뉴 수정이 완료되었습니다.");
+        result.put("data", null);
 
         return ResponseEntity.ok(result);
     }

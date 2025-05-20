@@ -17,6 +17,7 @@ import phzzk.aisolutionmanagement.api.menu.entity.Menu;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,17 @@ import java.util.stream.Collectors;
 public class MenuService {
     private final MenuRepository menuRepository;
     private final  ModelMapper modelMapper;
+
+    /**
+     * 매뉴 개별 아이디 조회
+     * @return MenuAdminDto
+     */
+    public MenuAdminDto getMenuId(Integer menuId) {
+        Menu findMenu = menuRepository.findById(menuId)
+                .orElseThrow(()->new CustomException(ErrorCode.MENU_PARENT_NOT_FOUND));
+        MenuAdminDto menuAdminDto = modelMapper.map(findMenu, MenuAdminDto.class);
+        return menuAdminDto;
+    }
 
     /**
      * 사용자 권한별 메뉴 조회
@@ -101,19 +113,8 @@ public class MenuService {
      * @return 권한에 맞는 메뉴 트리
      */
     private MenuAdminDto toAdminMenuDto(Menu menu) {
-        log.info(menu.toString());
         // 1) 기본 필드 매핑
         MenuAdminDto dto = modelMapper.map(menu, MenuAdminDto.class);
-
-        // 2) prev/next 매핑
-        if (menu.getPrevMenuId() != null && menu.getPrevMenu() != null) {
-            dto.setPrevMenuName(menu.getPrevMenu().getName());
-            dto.setPrevMenuUrl( menu.getPrevMenu().getUrl());
-        }
-        if (menu.getNextMenuId() != null && menu.getNextMenu() != null) {
-            dto.setNextMenuName(menu.getNextMenu().getName());
-            dto.setNextMenuUrl( menu.getNextMenu().getUrl());
-        }
 
         // 3) children 재귀 매핑
         List<MenuAdminDto> childDtos = menu.getChildren().stream()
@@ -163,28 +164,37 @@ public class MenuService {
         }
     }
 
-    public MenuClientDto updateMenu(Integer menuId, MenuUpdateRequestDto request) {
+    @Transactional
+    public MenuAdminDto updateMenu(Integer menuId, MenuUpdateRequestDto menuUpdateRequestDto) {
         // 1. 수정 대상 메뉴 조회
         Menu existing = menuRepository.findById(menuId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
 
         // 2. 부모 메뉴 조회 (ID가 null이면 null 반환)
-        Menu parent = findParentOrNull(request.getParentId());
+        Menu parent = findParentOrNull(menuUpdateRequestDto.getParentId());
 
         // 2-1. 자기 자신을 부모로 지정할 수 없도록 방지
-        if (request.getParentId() != null && request.getParentId().equals(menuId)) {
+        if (menuUpdateRequestDto.getParentId() != null && menuUpdateRequestDto.getParentId().equals(menuId)) {
             throw new CustomException(ErrorCode.MENU_PARENT_CYCLE_INVALID);
         }
 
         // 3. 역할 유효성 검증 (빈 집합, 부모 권한 포함 여부)
-        validateRoles(request.getRoles(), parent);
+        validateRoles(menuUpdateRequestDto.getRoles(), parent);
 
         // 4. 요청 DTO의 변경값을 기존 엔티티에 매핑
-        modelMapper.map(request, existing);
-        existing.setParent(parent);
+        modelMapper.map(menuUpdateRequestDto, existing);
+        log.info(existing.toString());
 
         // 5. 엔티티 저장 및 응답 DTO 변환
         Menu updated = menuRepository.save(existing);
-        return modelMapper.map(updated, MenuClientDto.class);
+        return modelMapper.map(updated, MenuAdminDto.class);
+    }
+
+    @Transactional
+    public void deleteMenu(Integer menuId) {
+        if (!menuRepository.existsById(menuId)) {
+            throw new CustomException(ErrorCode.MENU_NOT_FOUND);
+        }
+       menuRepository.deleteById(menuId);
     }
 }
