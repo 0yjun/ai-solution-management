@@ -3,6 +3,7 @@ package phzzk.aisolutionmanagement.api.menu.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import phzzk.aisolutionmanagement.api.help.entity.Help;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.converter.RoleConverter;
 
@@ -70,4 +71,12 @@ public class Menu {
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> children = new ArrayList<>();
+
+    @OneToOne(
+            mappedBy = "menu",
+            cascade   = CascadeType.REMOVE,   // DELETE Menu → DELETE Help
+            orphanRemoval = true,             // Menu에서 Help 참조 끊기면 Help 삭제
+            fetch     = FetchType.LAZY
+    )
+    private Help help;
 }

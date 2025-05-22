@@ -56,10 +56,43 @@ INSERT INTO MENU (name, description, url, seq, icon, roles, is_active,parent_id,
     ('사용자 관리', '사용자 관리','/system/member-management',2,'mdi-account-edit','SYSTEM_ADMIN',true,4,6,8),
     ('공통코드 관리', '공통코드 관리','/system/commoncode-management',3,'mdi-file-code','SYSTEM_ADMIN',true,4,7,null),
     ('임계치 관리', '임계치관리','/system/threshold-management',4,'mdi-speedometer','SYSTEM_ADMIN',true, 4,null,null),
-    ('도움말 관리', '도움말 관리','/system/help-dialog',5,'mdi-help-circle','SYSTEM_ADMIN',true, 4,null,null),
+    ('도움말 관리', '도움말 관리','/system/help-management',5,'mdi-help-circle','SYSTEM_ADMIN',true, 4,null,null),
 
     -- 통계 관리
     ('이용률 통계', '메뉴/권한관리','/statistics/utilization-rate',1,'mdi-database-search-outline','SYSTEM_ADMIN',true,5,null,null),
     ('키워드 통계', '사용자 관리','/statistics/keyword-statistics',2,'mdi-database-search-outline','SYSTEM_ADMIN',true,5,null,null),
     ('답변정확도 통계', '공통코드 관리','/statistics/answer-accuracy-statistics',3,'mdi-database-search-outline','SYSTEM_ADMIN',true,5,null,null);
 
+
+INSERT INTO HELP (help_description, menu_id)
+values
+    -- 부모메뉴
+    ('DashBoard', 1),
+    ('학습관리', 2),
+    ('모델관리', 3),
+    ('시스템 설정', 4),
+    ('통계조회', 5),
+    ('배포관리', 6),
+
+    -- 학습관리 하위 메뉴
+    ('학습문서', 7),
+    ('학습 데이터 생성', 8),
+    ('벡터데이터 관리', 9),
+
+    -- 시스템 설정
+    ( '메뉴/권한관리', 10),
+    ('사용자 관리', 11),
+    ('공통코드 관리', 12),
+    ('임계치관리', 13),
+    ('도움말 관리', 14),
+
+    -- 통계 관리
+    ( '메뉴/권한관리', 15),
+    ('사용자 관리', 16),
+    ('공통코드 관리', 17);
+
+insert into help_image (help_id, image_description, seq)
+    values
+    (1, '이미지1', 1),
+    (1, '이미지2', 2),
+    (1, '이미지3', 3);

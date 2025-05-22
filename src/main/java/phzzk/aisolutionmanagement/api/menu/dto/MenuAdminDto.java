@@ -52,5 +52,4 @@ public class MenuAdminDto {
 
     @Schema(description = "다음 메뉴 ID", example = "1")
     private Long nextMenuId;
-
 }

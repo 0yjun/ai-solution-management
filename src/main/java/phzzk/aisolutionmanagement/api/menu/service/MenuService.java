@@ -27,11 +27,15 @@ public class MenuService {
     private final MenuRepository menuRepository;
     private final  ModelMapper modelMapper;
 
+    public Menu findMenuById(Integer menuId) {
+        return menuRepository.findById(menuId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENU_NOT_FOUND));
+    }
     /**
      * 매뉴 개별 아이디 조회
      * @return MenuAdminDto
      */
-    public MenuAdminDto getMenuId(Integer menuId) {
+    public MenuAdminDto getMenuAdminDtoById(Integer menuId) {
         Menu findMenu = menuRepository.findById(menuId)
                 .orElseThrow(()->new CustomException(ErrorCode.MENU_PARENT_NOT_FOUND));
         MenuAdminDto menuAdminDto = modelMapper.map(findMenu, MenuAdminDto.class);
@@ -183,7 +187,6 @@ public class MenuService {
 
         // 4. 요청 DTO의 변경값을 기존 엔티티에 매핑
         modelMapper.map(menuUpdateRequestDto, existing);
-        log.info(existing.toString());
 
         // 5. 엔티티 저장 및 응답 DTO 변환
         Menu updated = menuRepository.save(existing);

@@ -46,7 +46,7 @@ public enum ErrorCode {
             "자식 메뉴 권한은 부모 권한안에 속해야 합니다.", ErrorType.BUSINESS),
     MENU_EMPTY_ROLES(HttpStatus.BAD_REQUEST,       "MNU003",
             "메뉴에는 최소한 하나의 권한이 필요합니다.", ErrorType.BUSINESS),
-    MENU_NOT_FOUND(HttpStatus.BAD_REQUEST,       "MNU004",
+    MENU_NOT_FOUND(HttpStatus.NOT_FOUND,       "MNU004",
             "메뉴를 찾을수 없습니다.", ErrorType.BUSINESS),
     MENU_PARENT_CYCLE_INVALID(HttpStatus.BAD_REQUEST,       "MNU005",
             "부모를 자기 자신으로 설정 할 수 없습니다..", ErrorType.BUSINESS),
