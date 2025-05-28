@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import phzzk.aisolutionmanagement.api.help.dto.HelpCreateRequestDto;
 import phzzk.aisolutionmanagement.api.help.dto.HelpDto;
+import phzzk.aisolutionmanagement.api.help.dto.HelpImageCreateRequestDto;
 import phzzk.aisolutionmanagement.api.help.dto.HelpUpdateRequestDto;
 import phzzk.aisolutionmanagement.api.help.entity.Help;
+import phzzk.aisolutionmanagement.api.help.entity.HelpImage;
 import phzzk.aisolutionmanagement.api.help.repository.HelpRepository;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuAdminDto;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuClientDto;
@@ -21,6 +23,7 @@ import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
 import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -83,5 +86,47 @@ public class HelpService {
             throw new CustomException(ErrorCode.MENU_NOT_FOUND);
         }
         helpRepository.deleteById(helpId);
+    }
+
+    @Transactional
+    public void deleteHelpImage(Long helpId, Long imageId) {
+        Help help = helpRepository.findById(helpId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        // 1) 해당 이미지가 정말 이 도움말에 속해 있는지 검증
+        HelpImage target = help.getImages().stream()
+                .filter(img -> img.getId().equals(imageId))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        // 2) 엔티티 편의 메서드로 제거 (orphanRemoval로 DB에서도 삭제)
+        help.removeImage(target);
+        // 별도 save() 호출 불필요 (영속성 컨텍스트에서 변경 감지)
+    }
+
+    @Transactional
+    public HelpDto createHelpImage(Long helpId, HelpImageCreateRequestDto dto) {
+        // 1) 도움말 조회
+        Help help = helpRepository.findById(helpId)
+                .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND,
+                        "Help not found: " + helpId));
+
+        // 2) 파일 → byte[] 변환 & 엔티티 생성
+        byte[] imageBytes;
+        try {
+            imageBytes = dto.getFile().getBytes();
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INTERNAL_COMMON_ERROR, "Failed to read image", e);
+        }
+        HelpImage image = new HelpImage();
+        image.setBlob(imageBytes);
+        image.setImageDescription(dto.getImageDescription());
+
+        // 3) 연관관계 설정 및 영속화
+        help.addImage(image);
+        // (helpRepository.save(help) 불필요: 영속성 컨텍스트 감지)
+
+        // 4) 변경 후 DTO 반환
+        return modelMapper.map(help, HelpDto.class);
     }
 }

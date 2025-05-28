@@ -6,6 +6,8 @@ import lombok.*;
 import phzzk.aisolutionmanagement.api.menu.entity.Menu;
 import phzzk.aisolutionmanagement.common.constants.Role;
 import phzzk.aisolutionmanagement.common.converter.RoleConverter;
+import phzzk.aisolutionmanagement.common.exception.CustomException;
+import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,6 +45,7 @@ public class Help {
             orphanRemoval = true                // Help에서 이미지 참조 제거 시 삭제
     )
     @OrderBy("seq ASC")
+    //@OrderColumn(name = "seq")
     private List<HelpImage> images = new ArrayList<>();
 
     // == 연관관계 편의 메서드 ==
@@ -59,16 +62,32 @@ public class Help {
         images.add(image);
     }
 
-    public void removeImage(int index) {
-        if (index < 0 || index >= images.size()) {
-            throw new IndexOutOfBoundsException("유효하지 않은 이미지 인덱스입니다: " + index);
+    public void removeImage(HelpImage image) {
+        // 컬렉션에서 제거되지 않으면 예외
+        if (!images.remove(image)) {
+            throw new CustomException(ErrorCode.RESOURCE_NOT_FOUND,
+                    "해당 이미지가 존재하지 않습니다: id=" + image.getId());
         }
-        images.remove(index);
-        // 순서 재정렬
+
+        // 양방향 연결 해제
+        image.setHelp(null);
+
+        // 남은 이미지들의 seq를 재정렬
         for (int i = 0; i < images.size(); i++) {
             images.get(i).setSeq(i + 1);
         }
     }
+
+//    public void removeImage(int index) {
+//        if (index < 0 || index >= images.size()) {
+//            throw new IndexOutOfBoundsException("유효하지 않은 이미지 인덱스입니다: " + index);
+//        }
+//        images.remove(index);
+//        // 순서 재정렬
+//        for (int i = 0; i < images.size(); i++) {
+//            images.get(i).setSeq(i + 1);
+//        }
+//    }
 
     public void clearImages() {
         images.clear();

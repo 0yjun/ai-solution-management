@@ -126,21 +126,7 @@ public class MenuController {
         return ResponseEntity.ok(result);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateMenu(
-            @PathVariable Integer id,
-            @Valid @RequestBody MenuUpdateRequestDto request) {
-        // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
-        MenuAdminDto menuAdminDto = menuService.updateMenu(id, request);
 
-        // 2) 응답 포맷에 맞춰 Map 생성
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("code", "SUCCESS");
-        result.put("message", "메뉴 수정이 완료되었습니다.");
-        result.put("data", menuAdminDto);
-
-        return ResponseEntity.ok(result);
-    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteMenu(@PathVariable Integer id) {
