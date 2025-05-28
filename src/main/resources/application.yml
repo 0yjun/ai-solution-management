@@ -25,6 +25,7 @@ spring:
 #        username: sa
 #        password:
 
+domain: localhost:8080
 
 jwt:
     secret: aisolutionmanagement_prerevolutionaries_aisolutionmanagement_aisolutionmanagement_aisolutionmanagement_

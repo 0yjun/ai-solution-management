@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class HelpImageDto {
     private Long id;
-    private byte[] blob;
+    private String url;
     private String imageDescription;
     private int seq;
 }

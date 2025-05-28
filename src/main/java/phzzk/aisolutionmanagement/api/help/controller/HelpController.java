@@ -3,13 +3,10 @@ package phzzk.aisolutionmanagement.api.help.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import phzzk.aisolutionmanagement.api.help.dto.HelpCreateRequestDto;
-import phzzk.aisolutionmanagement.api.help.dto.HelpDto;
-import phzzk.aisolutionmanagement.api.help.dto.HelpImageCreateRequestDto;
-import phzzk.aisolutionmanagement.api.help.dto.HelpUpdateRequestDto;
+import phzzk.aisolutionmanagement.api.help.dto.*;
 import phzzk.aisolutionmanagement.api.help.service.HelpService;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuAdminDto;
 import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequestDto;
@@ -17,6 +14,7 @@ import phzzk.aisolutionmanagement.api.menu.dto.MenuUpdateRequestDto;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/helps")
@@ -53,6 +51,34 @@ public class HelpController {
         return ResponseEntity.ok(body);
     }
 
+    /**
+     * 도움말 이미지 스트리밍 제공
+     *
+     * @param helpId  도움말 ID
+     * @param imageId 이미지 ID
+     * @return 이미지 바이트 배열과 적절한 HTTP 헤더
+     */
+    @GetMapping(value = "/{helpId}/images/{imageId}")
+    public ResponseEntity<byte[]> serveHelpImage(
+            @PathVariable Long helpId,
+            @PathVariable Long imageId) {
+
+        // 서비스에서 blob + contentType + length 등을 얻어오는 DTO
+        HelpImageResourceDto imageData = helpService.getHelpImageResource(helpId, imageId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.valueOf(imageData.getContentType()));
+        headers.setContentLength(imageData.getLength());
+        // 필요하다면 캐시 제어 헤더
+        headers.setCacheControl(CacheControl.maxAge(1, TimeUnit.DAYS));
+
+        return new ResponseEntity<>(
+                imageData.getBlob(),
+                headers,
+                HttpStatus.OK
+        );
+    }
+
     @PostMapping
     public ResponseEntity<Map<String, Object>> createHelp(
             @Validated @RequestBody HelpCreateRequestDto helpCreateRequestDto
@@ -85,7 +111,7 @@ public class HelpController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateMenu(
+    public ResponseEntity<Map<String, Object>> updateHelp(
             @PathVariable Long id,
             @Valid @RequestBody HelpUpdateRequestDto request) {
         // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
@@ -96,6 +122,23 @@ public class HelpController {
         result.put("code", "SUCCESS");
         result.put("message", "메뉴 수정이 완료되었습니다.");
         result.put("data", helpDto);
+
+        return ResponseEntity.ok(result);
+    }
+
+    @PutMapping("/{helpId}/images/{helpImageId}")
+    public ResponseEntity<Map<String, Object>> updateHelpImage(
+            @PathVariable Long helpId,
+            @PathVariable Long helpImageId,
+            @Valid @ModelAttribute HelpImageUpdateRequestDto request) {
+        // 1) 서비스에서 저장하고, 생성된 메뉴 ID를 반환
+        HelpImageDto helpImageDto = helpService.updateHelpImage(helpId, helpImageId, request);
+
+        // 2) 응답 포맷에 맞춰 Map 생성
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("code", "SUCCESS");
+        result.put("message", "메뉴 수정이 완료되었습니다.");
+        result.put("data", helpImageDto);
 
         return ResponseEntity.ok(result);
     }

@@ -91,8 +91,8 @@ values
     ('사용자 관리', 16),
     ('공통코드 관리', 17);
 
-insert into help_image (help_id, image_description, seq)
+insert into help_image (help_id, image_description, seq, content_type)
     values
-    (1, '이미지1', 1),
-    (1, '이미지2', 2),
-    (1, '이미지3', 3);
+    (1, '이미지1', 1, 'jpeg'),
+    (1, '이미지2', 2, 'jpeg'),
+    (1, '이미지3', 3,'jpeg');

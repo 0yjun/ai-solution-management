@@ -34,8 +34,6 @@ public class HelpImage {
     @Column(name = "seq", nullable = false)
     private int seq;
 
-    public HelpImage(byte[] blob, String imageDescription) {
-        this.blob = blob;
-        this.imageDescription = imageDescription;
-    }
+    @Column(name = "content_type", length = 100, nullable = false)
+    private String contentType;
 }
