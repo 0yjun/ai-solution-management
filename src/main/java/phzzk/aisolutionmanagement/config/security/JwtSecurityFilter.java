@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 import phzzk.aisolutionmanagement.common.exception.CustomException;
+import phzzk.aisolutionmanagement.common.exception.ErrorCode;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,6 +32,20 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String token = resolveToken(request);
+        if(token == null
+                && !request.getRequestURI().equals("/api/auth/login")
+                && !request.getRequestURI().equals("/api/members/me")){
+            SecurityContextHolder.clearContext();
+            ErrorCode errorcode = ErrorCode.JWT_INVALID;
+
+            response.setStatus(errorcode.getHttpStatus().value());
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(
+                    "{\"code\":\"" + errorcode.getCode() + "\"," +
+                            " \"message\":\"" + errorcode.getMessage() + "\"}"
+            );
+            return;
+        }
         if(token !=null){
             try {
                 if(jwtTokenProvider.validateToken(token)) {
@@ -65,35 +80,5 @@ public class JwtSecurityFilter extends OncePerRequestFilter {
         // 2) 쿠키에서 access_token 찾기 
         Cookie cookie = WebUtils.getCookie(request, "access_token");
         return (cookie != null ? cookie.getValue() : null);
-
-//        Cookie[] cookies = request.getCookies();
-//        String authToken = null;
-//        if (cookies == null) {
-//            log.info("1) request.getCookies() returned null → 쿠키가 없습니다.");
-//        } else {
-//            log.info("1) request.getCookies() → {} 개의 쿠키 발견", cookies.length);
-//
-//            // 2) 모든 쿠키 이름·값 출력
-//            for (Cookie c : cookies) {
-//                log.info("   ▶ cookie name='{}', value='{}'", c.getName(), c.getValue());
-//            }
-//
-//            // 3) auth_token 쿠키 필터링
-//            Optional<Cookie> authCookie = Arrays.stream(cookies)
-//                    .filter(c -> "access_token".equals(c.getName()))
-//                    .peek(c -> log.info("2) auth_token 쿠키 필터링 → 해당 쿠키 발견"))
-//                    .findFirst();
-//
-//            if (authCookie.isPresent()) {
-//                log.info("3) auth_token 쿠키가 존재합니다.");
-//                // 4) 값 추출
-//                authToken = authCookie.get().getValue();
-//                log.info("4) auth_token 값 → {}", authToken);
-//                // 이후 authToken 활용 로직…
-//            } else {
-//                log.info("2) auth_token 쿠키가 없습니다.");
-//            }
-//        }
-//        return authToken;
     }
 }

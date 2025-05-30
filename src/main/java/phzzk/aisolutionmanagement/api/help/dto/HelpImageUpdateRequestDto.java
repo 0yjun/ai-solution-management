@@ -22,14 +22,7 @@ public class HelpImageUpdateRequestDto {
     private String imageDescription;
 
     @Schema(description = "도움말 이미지 파일 (최대 10MB, JPEG/PNG/GIF)", type = "string", format = "binary")
-    @NotNull(message = "이미지 파일은 필수입니다.")
     private MultipartFile file;
-
-    // 파일 크기 검증 (10MB 이하)
-    @AssertTrue(message = "파일 크기는 100MB 이하여야 합니다.")
-    private boolean isImageSizeValid() {
-        return file != null && file.getSize() <= 100 * 1024 * 1024;
-    }
 
     // 파일 타입 검증 (이미지 형식)
     @AssertTrue(message = "이미지 파일(JPEG/PNG/GIF)만 업로드 가능합니다.")

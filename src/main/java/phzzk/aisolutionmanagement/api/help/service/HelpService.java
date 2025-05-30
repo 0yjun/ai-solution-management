@@ -81,6 +81,10 @@ public class HelpService {
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.RESOURCE_NOT_FOUND));
 
+        if(helpImage.getBlob()==null){
+            throw new CustomException(ErrorCode.INTERNAL_COMMON_ERROR);
+        }
+
         Map<String, String> mimeMap = Map.of(
                 "image/jpeg", MediaType.IMAGE_JPEG_VALUE,
                 "jpeg",       MediaType.IMAGE_JPEG_VALUE,
